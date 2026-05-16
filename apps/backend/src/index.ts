@@ -12,6 +12,7 @@ import payrollRoutes from './routes/payroll'
 import analyticsRoutes from './routes/analytics'
 import walletRoutes from './routes/wallets'
 import { startPayrollScheduler } from './jobs/payroll-scheduler'
+import { errorHandler, notFound } from './middleware/error'
 
 dotenv.config()
 
@@ -35,6 +36,9 @@ app.use('/api/employees', employeeRoutes)
 app.use('/api/payroll', payrollRoutes)
 app.use('/api/analytics', analyticsRoutes)
 app.use('/api/wallets', walletRoutes)
+
+app.use(notFound)
+app.use(errorHandler)
 
 app.listen(PORT, () => {
   console.log(`PayChain API running on port ${PORT}`)
