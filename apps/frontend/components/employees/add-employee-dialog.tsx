@@ -6,21 +6,35 @@ import api from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { useToast } from '@/hooks/use-toast'
 
 interface Props { open: boolean; onClose: () => void }
 
 const TOKENS = ['USDC', 'USDT', 'XLM']
 const FREQUENCIES = ['WEEKLY', 'BIWEEKLY', 'MONTHLY']
 
+const EMPTY = { name: '', email: '', walletAddress: '', title: '', salary: '', token: 'USDC', paymentFrequency: 'MONTHLY' }
+
 export function AddEmployeeDialog({ open, onClose }: Props) {
   const queryClient = useQueryClient()
-  const [form, setForm] = useState({ name: '', email: '', walletAddress: '', title: '', salary: '', token: 'USDC', paymentFrequency: 'MONTHLY' })
+  const toast = useToast()
+  const [form, setForm] = useState(EMPTY)
   const [error, setError] = useState('')
 
   const mutation = useMutation({
-    mutationFn: (data: typeof form) => api.post('/employees', { ...data, salary: parseFloat(data.salary) }),
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['employees'] }); onClose(); setForm({ name: '', email: '', walletAddress: '', title: '', salary: '', token: 'USDC', paymentFrequency: 'MONTHLY' }) },
-    onError: (err: unknown) => setError((err as { response?: { data?: { error?: string } } })?.response?.data?.error ?? 'Failed to add employee'),
+    mutationFn: (data: typeof form) =>
+      api.post('/employees', { ...data, salary: parseFloat(data.salary) }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['employees'] })
+      toast({ title: 'Employee added', description: `${form.name} has been onboarded.`, variant: 'success' })
+      onClose()
+      setForm(EMPTY)
+      setError('')
+    },
+    onError: (err: unknown) => {
+      setError((err as { response?: { data?: { error?: string } } })?.response?.data?.error ?? 'Failed to add employee')
+    },
   })
 
   function set(field: string, value: string) { setForm((p) => ({ ...p, [field]: value })) }
@@ -43,7 +57,7 @@ export function AddEmployeeDialog({ open, onClose }: Props) {
           </div>
           <div className="space-y-1 col-span-2">
             <Label>Wallet Address</Label>
-            <Input placeholder="G... or 0x..." value={form.walletAddress} onChange={(e) => set('walletAddress', e.target.value)} />
+            <Input placeholder="G... (Stellar) or 0x... (EVM)" value={form.walletAddress} onChange={(e) => set('walletAddress', e.target.value)} />
           </div>
           <div className="space-y-1">
             <Label>Title</Label>
@@ -51,24 +65,33 @@ export function AddEmployeeDialog({ open, onClose }: Props) {
           </div>
           <div className="space-y-1">
             <Label>Salary</Label>
-            <Input type="number" placeholder="5000" value={form.salary} onChange={(e) => set('salary', e.target.value)} />
+            <Input type="number" min="0" placeholder="5000" value={form.salary} onChange={(e) => set('salary', e.target.value)} />
           </div>
           <div className="space-y-1">
             <Label>Token</Label>
-            <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={form.token} onChange={(e) => set('token', e.target.value)}>
-              {TOKENS.map((t) => <option key={t}>{t}</option>)}
-            </select>
+            <Select value={form.token} onValueChange={(v) => set('token', v)}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {TOKENS.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+              </SelectContent>
+            </Select>
           </div>
           <div className="space-y-1">
             <Label>Frequency</Label>
-            <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={form.paymentFrequency} onChange={(e) => set('paymentFrequency', e.target.value)}>
-              {FREQUENCIES.map((f) => <option key={f}>{f}</option>)}
-            </select>
+            <Select value={form.paymentFrequency} onValueChange={(v) => set('paymentFrequency', v)}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {FREQUENCIES.map((f) => <SelectItem key={f} value={f}>{f}</SelectItem>)}
+              </SelectContent>
+            </Select>
           </div>
         </div>
         <div className="flex gap-2 justify-end pt-2">
-          <Button variant="outline" onClick={onClose}>Cancel</Button>
-          <Button onClick={() => mutation.mutate(form)} disabled={mutation.isPending}>
+          <Button variant="outline" onClick={() => { onClose(); setError('') }}>Cancel</Button>
+          <Button
+            onClick={() => mutation.mutate(form)}
+            disabled={mutation.isPending || !form.name || !form.email || !form.walletAddress || !form.salary}
+          >
             {mutation.isPending ? 'Adding...' : 'Add Employee'}
           </Button>
         </div>
