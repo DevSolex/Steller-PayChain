@@ -4,11 +4,16 @@ import { useQuery } from '@tanstack/react-query'
 import { Users, DollarSign, Clock, CheckCircle, TrendingUp } from 'lucide-react'
 import api from '@/lib/api'
 import { StatCard } from '@/components/dashboard/stat-card'
+import { PayrollTrendChart } from '@/components/dashboard/payroll-trend-chart'
 import { formatCurrency } from '@/lib/utils'
 import type { AnalyticsOverview } from '@/types'
 
+interface AnalyticsData extends AnalyticsOverview {
+  trend: { month: string; total: number }[]
+}
+
 export default function DashboardPage() {
-  const { data, isLoading } = useQuery<AnalyticsOverview>({
+  const { data, isLoading } = useQuery<AnalyticsData>({
     queryKey: ['analytics-overview'],
     queryFn: async () => {
       const res = await api.get('/analytics/overview')
@@ -61,6 +66,8 @@ export default function DashboardPage() {
           icon={Clock}
         />
       </div>
+
+      {data?.trend && <PayrollTrendChart data={data.trend} />}
     </div>
   )
 }
