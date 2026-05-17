@@ -37,7 +37,7 @@ function NavContent({ onNavigate }: { onNavigate?: () => void }) {
         {navItems.map(({ href, label, icon: Icon }) => (
           <Link
             key={href}
-            href={href}
+            href={href as any}
             onClick={onNavigate}
             className={cn(
               'flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors',
