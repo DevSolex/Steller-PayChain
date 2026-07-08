@@ -1,4 +1,4 @@
-import { Router } from 'express'
+import { Router, Response } from 'express'
 import { prisma } from '../utils/prisma'
 import { authenticate, requireCompany } from '../middleware/auth'
 import type { AuthRequest } from '../middleware/auth'
@@ -6,7 +6,7 @@ import type { AuthRequest } from '../middleware/auth'
 const router = Router()
 
 // GET /api/analytics/overview
-router.get('/overview', authenticate, requireCompany, async (req: AuthRequest, res) => {
+router.get('/overview', authenticate, requireCompany, async (req: AuthRequest, res: Response) => {
   const companyId = req.user!.companyId!
 
   const [totalEmployees, activeEmployees, payrolls] = await Promise.all([

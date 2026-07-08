@@ -5,7 +5,7 @@ const isTestnet = config.stellar.network === 'testnet'
 
 export const server = new StellarSdk.Horizon.Server(config.stellar.horizonUrl)
 
-export const sorobanServer = new StellarSdk.SorobanRpc.Server(config.stellar.sorobanRpc)
+export const sorobanServer = new StellarSdk.rpc.Server(config.stellar.sorobanRpc)
 
 export const networkPassphrase = isTestnet
   ? StellarSdk.Networks.TESTNET
