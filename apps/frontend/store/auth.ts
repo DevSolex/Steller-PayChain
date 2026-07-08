@@ -32,8 +32,10 @@ export const useAuthStore = create<AuthState>()(
         set({ isLoading: true })
         try {
           const { data } = await api.post('/auth/login', { email, password })
-          localStorage.setItem('paychain_token', data.data.token)
-          set({ user: data.data.user, token: data.data.token })
+          const token = data.data.token
+          localStorage.setItem('paychain_token', token)
+          document.cookie = `paychain_token=${token}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`
+          set({ user: data.data.user, token })
         } finally {
           set({ isLoading: false })
         }
@@ -43,8 +45,10 @@ export const useAuthStore = create<AuthState>()(
         set({ isLoading: true })
         try {
           const { data } = await api.post('/auth/register', registerData)
-          localStorage.setItem('paychain_token', data.data.token)
-          set({ user: data.data.user, token: data.data.token })
+          const token = data.data.token
+          localStorage.setItem('paychain_token', token)
+          document.cookie = `paychain_token=${token}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`
+          set({ user: data.data.user, token })
         } finally {
           set({ isLoading: false })
         }
@@ -52,6 +56,7 @@ export const useAuthStore = create<AuthState>()(
 
       logout: () => {
         localStorage.removeItem('paychain_token')
+        document.cookie = 'paychain_token=; path=/; max-age=0'
         set({ user: null, token: null })
       },
 
