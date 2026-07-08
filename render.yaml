@@ -1,0 +1,45 @@
+services:
+  - type: web
+    name: paychain-backend
+    runtime: node
+    region: oregon
+    plan: free
+    rootDir: apps/backend
+    buildCommand: npm install && npm run db:generate && npm run build
+    startCommand: npm run start:migrate
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 4000
+      - key: DATABASE_URL
+        fromDatabase:
+          name: paychain-db
+          property: connectionString
+      - key: REDIS_URL
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: FRONTEND_URL
+        sync: false
+      - key: STELLAR_NETWORK
+        value: testnet
+      - key: STELLAR_HORIZON_URL
+        value: https://horizon-testnet.stellar.org
+      - key: STELLAR_SOROBAN_RPC
+        value: https://soroban-testnet.stellar.org
+      - key: STELLAR_ADMIN_SECRET
+        value: SAAJ6H4V56OKOUPFQNIX23VMTDAUYVD3NZLORHWHJYINRNXLONNV447S
+      - key: PAYROLL_CONTRACT_ID
+        value: CA6D63AASZ74PCD5N22X7IEH2IT7SWPBXOMYD3J5ZRQM4PVD6L6NZ2KQ
+      - key: PAYMENT_CONTRACT_ID
+        value: CDXABK45X4EIUBFDBPXYS25GEK3COFO47XBAII5R3NAPNCDL7XBVMZMA
+
+databases:
+  - name: paychain-db
+    databaseName: paychain
+    user: paychain
+    plan: free

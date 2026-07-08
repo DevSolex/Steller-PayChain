@@ -10,3 +10,7 @@ build/
 coverage/
 prisma/migrations/dev/
 .vercel
+
+# Rust build artifacts
+contracts/target/
+.stellar/
