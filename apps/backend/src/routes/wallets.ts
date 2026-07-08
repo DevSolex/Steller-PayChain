@@ -28,7 +28,7 @@ router.post('/connect', async (req: AuthRequest, res: Response) => {
 
 // GET /api/wallets/balance/:address
 router.get('/balance/:address', async (req: AuthRequest, res: Response) => {
-  const { address } = req.params as { address: string }
+  const address = req.params['address'] as string
   if (!isValidStellarAddress(address)) {
     return res.status(400).json({ success: false, error: 'Invalid Stellar address' })
   }
