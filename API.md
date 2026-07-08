@@ -7,9 +7,13 @@ Welcome to the PayChain API! This RESTful API allows you to programmatically int
 All endpoints are relative to the following base URL:
 
 ```text
+https://paychain-backend-cvnr.onrender.com/api
+```
+
+**Local Development:**
+```text
 http://localhost:4000/api
 ```
-*(In production, this will be your deployed backend URL)*
 
 ## Authentication
 
